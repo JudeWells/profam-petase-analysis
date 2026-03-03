@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProFam PETase Variant Analysis</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-light: #666;
+            --border: #e0e0e0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #1a252f);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .section h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .plot-frame {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .plot-frame iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+
+        .plot-frame.tall iframe {
+            height: 700px;
+        }
+
+        .plot-frame.short iframe {
+            height: 500px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .key-finding {
+            background: #eaf6ff;
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-finding strong {
+            color: var(--primary);
+        }
+
+        .methods {
+            background: #f0f0f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .methods code {
+            background: #ddd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .methods ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .methods li {
+            margin-bottom: 0.3rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-active { background: #27ae60; }
+        .badge-expressed { background: #2980b9; }
+        .badge-inactive { background: #e74c3c; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+
+        a { color: var(--accent); }
+        a:hover { text-decoration: none; }
+
+        table.summary-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .summary-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        .summary-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .summary-table tr:hover {
+            background-color: #e8f4f8;
+        }
+
+        .nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .nav a {
+            margin-right: 1.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .highlight-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .stat-box .label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ProFam PETase Variant Analysis</h1>
+    <p>ProteinMPNN scoring and experimental validation of 15 computationally designed PETase variants generated by ProFam</p>
+</header>
+
+<nav class="nav">
+    <a href="#overview">Overview</a>
+    <a href="#table">Summary Table</a>
+    <a href="#mpnn-activity">MPNN vs Activity</a>
+    <a href="#structure-comparison">Structure Comparison</a>
+    <a href="#rankings">Rankings</a>
+    <a href="#methods">Methods</a>
+</nav>
+
+<div class="container">
+
+    <!-- Overview Section -->
+    <div class="section" id="overview">
+        <h2>Overview</h2>
+        <div class="card">
+            <p>We designed 14 PETase variants using <strong>ProFam</strong> (protein family-conditioned language model)
+            and included <strong>Kubu-PETase</strong> (profam_5009) as a positive control. All 15 variants were
+            experimentally tested by <a href="https://www.adaptyvbio.com/" target="_blank">Adaptyv Bio</a> for:</p>
+            <ul style="margin: 1rem 0 1rem 2rem;">
+                <li><strong>Expression</strong> in cell-free system (quantified by fluorescence, LOD = 2.5 &micro;M)</li>
+                <li><strong>pNPA esterase activity</strong> (slope of absorbance change)</li>
+                <li><strong>PET hydrolysis</strong> (UV absorbance of released products)</li>
+            </ul>
+            <p>Each variant was structurally modeled with both <strong>ColabFold</strong> (AlphaFold2) and
+            <strong>AlphaFold3</strong>, then scored with <strong>ProteinMPNN</strong> to assess
+            sequence-structure compatibility.</p>
+        </div>
+
+        <div class="grid-2">
+            <div class="card stat-box">
+                <div class="highlight-number">15</div>
+                <div class="label">Variants Tested</div>
+            </div>
+            <div class="card stat-box">
+                <div class="highlight-number">2</div>
+                <div class="label">Structure Sources (ColabFold + AF3)</div>
+            </div>
+        </div>
+
+        <div class="key-finding">
+            <strong>Key Finding:</strong> profam_4436 (9 mutations from Kubu-PETase) showed the highest
+            pNPA esterase activity among all profam variants and detectable PET hydrolysis, consistent with
+            its low ProteinMPNN score indicating good sequence-structure compatibility.
+        </div>
+    </div>
+
+    <!-- Summary Table -->
+    <div class="section" id="table">
+        <h2>Summary Table</h2>
+        <div class="card" style="overflow-x: auto;">
+            <iframe src="plots/summary_table.html" style="width:100%; height:500px; border:none;"></iframe>
+        </div>
+    </div>
+
+    <!-- MPNN vs Activity -->
+    <div class="section" id="mpnn-activity">
+        <h2>MPNN Score vs Experimental Activity</h2>
+
+        <h3>PET Hydrolysis Activity</h3>
+        <p>ProteinMPNN scores (lower = better sequence-structure fit) compared to PET assay
+        absorbance change. Variants with detectable PET activity showed PET degradation products.</p>
+        <div class="plot-frame">
+            <iframe src="plots/mpnn_vs_pet.html" loading="lazy"></iframe>
+        </div>
+
+        <h3>pNPA Esterase Activity</h3>
+        <p>The pNPA assay measures general esterase activity via absorbance slope.
+        This is a broader activity measure than PET-specific hydrolysis.</p>
+        <div class="plot-frame">
+            <iframe src="plots/mpnn_vs_pnpa.html" loading="lazy"></iframe>
+        </div>
+
+        <h3>Protein Expression</h3>
+        <p>Expression measured in cell-free system. Most variants were below the limit of detection
+        (2.5 &micro;M). Variants shown as detected were above this threshold.</p>
+        <div class="plot-frame">
+            <iframe src="plots/mpnn_vs_expression.html" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- Structure Comparison -->
+    <div class="section" id="structure-comparison">
+        <h2>Structure Source Comparison</h2>
+
+        <h3>ColabFold vs AlphaFold3 MPNN Scores</h3>
+        <p>Comparing MPNN scores computed on ColabFold (AlphaFold2) vs AlphaFold3 predicted
+        structures. High correlation indicates consistent structural predictions.</p>
+        <div class="plot-frame tall">
+            <iframe src="plots/colabfold_vs_af3.html" loading="lazy"></iframe>
+        </div>
+
+        <h3>ProFam Log-Likelihood vs MPNN Score</h3>
+        <p>Comparing two computational metrics: ProFam's sequence log-likelihood (from the
+        generative model) and ProteinMPNN's structure-conditioned score.</p>
+        <div class="plot-frame">
+            <iframe src="plots/profam_ll_vs_mpnn.html" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- Rankings -->
+    <div class="section" id="rankings">
+        <h2>Variant Rankings</h2>
+        <p>All 15 variants ranked by ProteinMPNN score, colored by experimental activity status:</p>
+        <ul style="margin: 0.5rem 0 1rem 2rem;">
+            <li><span class="badge badge-active">Green</span> = PET hydrolysis detected</li>
+            <li><span class="badge badge-expressed">Blue</span> = Expressed but no PET activity</li>
+            <li><span class="badge badge-inactive">Red</span> = Below expression LOD</li>
+        </ul>
+        <div class="plot-frame short">
+            <iframe src="plots/ranked_bar.html" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- Methods -->
+    <div class="section" id="methods">
+        <h2>Methods</h2>
+        <div class="methods">
+            <h3>Variant Generation</h3>
+            <p>14 PETase variants were generated using ProFam, a protein family-conditioned language model.
+            Variants were sampled from the model's learned distribution over PETase-family sequences.
+            Kubu-PETase (profam_5009) was included as a positive control, being a known functional PETase.</p>
+
+            <h3>Structure Prediction</h3>
+            <ul>
+                <li><strong>ColabFold</strong>: AlphaFold2 predictions using MMseqs2 for MSA generation.
+                Rank-001 structures used for MPNN scoring.</li>
+                <li><strong>AlphaFold3</strong>: Predictions using the AlphaFold3 server.
+                Model-0 structures used for MPNN scoring.</li>
+            </ul>
+
+            <h3>ProteinMPNN Scoring</h3>
+            <p>Each variant was scored using ProteinMPNN in <code>--score_only</code> mode with
+            <code>--seed 42</code>. The score represents the mean negative log probability of each
+            amino acid given the backbone structure. <strong>Lower scores indicate better
+            sequence-structure compatibility.</strong></p>
+
+            <h3>Experimental Testing</h3>
+            <p>All variants were expressed in a cell-free system and tested by
+            <a href="https://www.adaptyvbio.com/">Adaptyv Bio</a>:</p>
+            <ul>
+                <li><strong>Expression</strong>: Quantified by fluorescence (LOD = 2.5 &micro;M)</li>
+                <li><strong>pNPA Assay</strong>: General esterase activity measured by p-nitrophenyl
+                acetate hydrolysis (absorbance at 405 nm)</li>
+                <li><strong>PET Assay</strong>: PET film hydrolysis measured by UV absorbance of
+                released terephthalic acid products</li>
+            </ul>
+
+            <h3>Data Processing</h3>
+            <p>Values below limit of detection (LOD) were treated as censored data.
+            Binary classifications (expressed/not, active/not) were used for visualization.
+            Correlations computed using Pearson and Spearman coefficients (scipy).</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>ProFam PETase Analysis | Generated with ProteinMPNN + Plotly |
+    <a href="https://github.com/JudeWells/profam-petase-analysis">GitHub Repository</a></p>
+</footer>
+
+</body>
+</html>
