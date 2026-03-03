@@ -241,6 +241,7 @@
     <a href="#mpnn-activity">MPNN vs Activity</a>
     <a href="#structure-comparison">Structure Comparison</a>
     <a href="#rankings">Rankings</a>
+    <a href="#substitution">Substitution Experiment</a>
     <a href="#methods">Methods</a>
 </nav>
 
@@ -345,6 +346,25 @@
         </ul>
         <div class="plot-frame short">
             <iframe src="plots/ranked_bar.html" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- First Residue Substitution Experiment -->
+    <div class="section" id="substitution">
+        <h2>First Residue Substitution Experiment</h2>
+        <div class="card">
+            <p>To test MPNN score sensitivity, we substituted the first residue (Met) with each of the
+            other 19 amino acids across all 15 AF3 structures and re-scored with ProteinMPNN.
+            Each subplot compares the distribution of scores with wildtype M (blue) vs the substituted
+            amino acid (red) across all 15 variants. The &Delta; value shows the change in mean score.</p>
+        </div>
+        <div class="key-finding">
+            <strong>Result:</strong> All substitutions produced negligible score changes (&Delta; &lt; 0.02),
+            confirming that ProteinMPNN is largely indifferent to the identity of the first residue &mdash;
+            consistent with N-terminal flexibility and lack of structured backbone contacts at position 1.
+        </div>
+        <div class="plot-frame" style="overflow:hidden;">
+            <iframe src="plots/first_residue_substitution.html" style="height:950px;" loading="lazy"></iframe>
         </div>
     </div>
 
